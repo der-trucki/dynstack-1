@@ -511,7 +511,7 @@ namespace DynStack.Simulation.HS {
         if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
         else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
 
-        if (!block.Ready) return MoveCondition.BlockNotReady;
+        if (!block.Ready) return MoveCondition.Invalid;
       }
 
       return returnCondition;
