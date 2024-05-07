@@ -6,8 +6,10 @@ using CommandLine;
 using DynStack.DataModel.Common;
 using NetMQ;
 
-namespace DynStack.SimulationRunner {
-  public class Options {
+namespace DynStack.SimulationRunner
+{
+  public class Options
+  {
     [Option("id", Required = true, Default = "00000000-0000-0000-0000-000000000000",
       HelpText = "The simulation id that the simulation should identify as.")]
     public string Id { get; set; }
@@ -68,36 +70,50 @@ update, but only after the measured time has passed in the simulation.
     public bool SimulateAsync { get; set; }
   }
 
-  public class Program {
+  public class Program
+  {
 
     static TextWriter Logger = TextWriter.Null;
 
-    static async Task<int> Main(string[] args) {
-      try {
+    static async Task<int> Main(string[] args)
+    {
+      try
+      {
         return await Parser.Default.ParseArguments<Options>(args).MapResult(o => Main(o), _ => Task.FromResult(0));
-      } catch (Exception e) {
+      }
+      catch (Exception e)
+      {
         Logger.WriteLine(e);
         throw;
-      } finally {
+      }
+      finally
+      {
         NetMQConfig.Cleanup(false);
         Logger.Dispose();
       }
     }
 
-    private static async Task<int> Main(Options o) {
+    private static async Task<int> Main(Options o)
+    {
       if (o.SimulateAsync && !o.RunSync && !o.PolicyRun)
         throw new ArgumentException($"The option to simulate asynchronism is only valid in synchronous mode or in a policy run.");
       var cts = new CancellationTokenSource();
-      if (o.Log.Equals("console", StringComparison.OrdinalIgnoreCase)) {
+      if (o.Log.Equals("console", StringComparison.OrdinalIgnoreCase))
+      {
         Logger = Console.Out;
-        Console.CancelKeyPress += (s, e) => {
+        Console.CancelKeyPress += (s, e) =>
+        {
           cts.Cancel();
         };
-      } else if (!o.Log.Equals("none", StringComparison.OrdinalIgnoreCase)) {
+      }
+      else if (!o.Log.Equals("none", StringComparison.OrdinalIgnoreCase))
+      {
         Logger = File.CreateText(o.Log);
       };
-      try {
-        switch (o.SimType) {
+      try
+      {
+        switch (o.SimType)
+        {
           case SimulationType.HS:
             if (!await new HS.SimulationHost().RunSimulationAsync(o, Logger, cts.Token))
               return 1;
@@ -113,7 +129,9 @@ update, but only after the measured time has passed in the simulation.
           default:
             throw new InvalidOperationException("Please specify a valid type of simulation to run.");
         }
-      } catch (Exception e) {
+      }
+      catch (Exception e)
+      {
         Logger.WriteLine(e);
         return 1;
       }

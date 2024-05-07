@@ -66,6 +66,7 @@ namespace DynStack.SimulationRunner.Common {
               _settingsReceived.SetResult(GetDefaultSettings());
             } else {
               logger.WriteLine($"Reading settings from {options.SettingsPath}");
+              logger.WriteLine($"Settings: {File.ReadAllBytes(options.SettingsPath)}");
               _settingsReceived.SetResult(File.ReadAllBytes(options.SettingsPath));
             }
           }

@@ -67,6 +67,7 @@ namespace DynStack.DataModel.HS {
     [ProtoMember(9)] public double CraneUtilizationMean { get; set; }
     [ProtoMember(10)] public double HandoverUtilizationMean { get; set; }
     [ProtoMember(11)] public double UpstreamUtilizationMean { get; set; }
+    [ProtoMember(12)] public double CraneMoveReward { get; set; }
 
     public static string[] ObjectiveNames => new[] { "Blocked", "On Time", "Moves" };
     public static bool[] Maximization => new[] { false, true, false };
@@ -99,6 +100,8 @@ namespace DynStack.DataModel.HS {
       sb.AppendLine(HandoverUtilizationMean.ToString());
       sb.Append("Upstream Utilization: ");
       sb.AppendLine(UpstreamUtilizationMean.ToString());
+      sb.Append("Cranemove reward: ");
+      sb.AppendLine(CraneMoveReward.ToString());
       return sb.ToString();
     }
 

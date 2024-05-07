@@ -9,7 +9,7 @@ using DynStack.DataModel.HS;
 using SimSharp;
 
 namespace DynStack.Simulation.HS {
-  public enum MoveCondition {
+  /*public enum MoveCondition {
     Valid,
     InvalidBlockId,
     InvalidSource,
@@ -18,7 +18,28 @@ namespace DynStack.Simulation.HS {
     BlockNotFound,
     HandoverNotReady,
     BlockNotReady
+  }*/
+  public enum MoveCondition
+  {
+    EmptyFullArrival, // R = 600
+    EmptyThreeQuatFullArrival, // R = 150
+    EmptyQuatFullArrival, // R = 15
+    EmptyEmptyArrival, // R = -50 . Arrival is full
+    EmptyArrivalTopReady, // R = -100
+    EmptyArrivalStackReady, // R = -25
+    HandoverReadyBlock, // R = 500
+    HandoverNotReadyBlock, // R = -50
+    HandoverNotReady, // R = -50
+    FullHandover, // R = -50 . Handover is full
+    NoPurposeMove, // R = -50 
+    PurposeMove, // R = -10 . For each block to ready block -> add -10
+    SourceEmpty, // R = 20 . Stack gets empty
+    MoveToTopReady, // R = -200 
+    MoveToStackReady, // R = -30 . Stack holds any ready block
+    Invalid, // something to do? 
+    Valid, // default 
   }
+
   public class HotstorageSimulation {
     private PseudoRealtimeSimulation sim;
     public const int MAX_OBSERVATIONS = 100;
@@ -311,7 +332,7 @@ namespace DynStack.Simulation.HS {
         if (schedule.Moves == null) { yield break; }
         foreach (var move in schedule.Moves.ToList()) {
           var condition = CheckMoveCondition(move);
-          if (condition != MoveCondition.Valid) {
+          if (condition == MoveCondition.Invalid) {
             //sim.Log($"Invalid Move {move} {condition}");
             World.Crane.Schedule.Moves.Remove(move);
             World.InvalidMoves.Add(move);
@@ -447,30 +468,79 @@ namespace DynStack.Simulation.HS {
       OnWorldChanged();
     }
 
-    private MoveCondition CheckMoveCondition(CraneMove move) {
-      if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
-      if (move.SourceId == 0) { // Production -> X
-        var block = World.Production.BottomToTop.LastOrDefault();
-        if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
-      } else if (move.SourceId <= World.Buffers.Count) { // Buffer -> X
-        var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
-        if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
-      } else return MoveCondition.InvalidSource; // Handover -> X
-      if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
-      else if (move.TargetId <= World.Buffers.Count) { // X -> Buffer
-        if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
-          return MoveCondition.HeightLimitViolated;
-      } else { // X -> Handover
-        if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
+    private MoveCondition CheckMoveCondition(CraneMove move)
+    {
+      // brauchts die ReturnCondition?
+      var returnCondition = MoveCondition.Valid;
+      if(move.SourceId == 0) // Production -> X
+      {  
+
+      }
+      else if (move.SourceId <= World.Buffers.Count) // Buffer -> X
+      {
+        
+      }
+      else returnCondition = MoveCondition.Invalid;
+
+      if (move.TargetId == 0) return MoveCondition.Invalid; // X -> Production
+      else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
+      {
+        int targetIndex = move.TargetId - 1;
+        if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
+        {
+          World.KPIs.CraneMoveReward += -200;
+          returnCondition = MoveCondition.MoveToTopReady;
+        }else if(World.Buffers[targetIndex].BottomToTop.First().Ready)
+        {
+          World.KPIs.CraneMoveReward += -30;
+          returnCondition = MoveCondition.MoveToStackReady;
+        }
+      }
+      else
+      { // X -> Handover
+        if (!World.Handover.Ready) {
+          World.KPIs.CraneMoveReward += -50;
+          returnCondition = MoveCondition.HandoverNotReady;
+        }
+        else if (World.Handover.Block != null)
+        {
+          returnCondition = MoveCondition.FullHandover;
+        }
+
         Block block;
         if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
         else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+
         if (!block.Ready) return MoveCondition.BlockNotReady;
       }
-      return MoveCondition.Valid;
-    }
 
-    private IEnumerable<Event> OrderCompletion() {
+      return returnCondition;
+    }
+      /* old source
+      private MoveCondition CheckMoveCondition(CraneMove move) {
+        if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
+        if (move.SourceId == 0) { // Production -> X
+          var block = World.Production.BottomToTop.LastOrDefault();
+          if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
+        } else if (move.SourceId <= World.Buffers.Count) { // Buffer -> X
+          var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+          if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
+        } else return MoveCondition.InvalidSource; // Handover -> X
+        if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
+        else if (move.TargetId <= World.Buffers.Count) { // X -> Buffer
+          if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
+            return MoveCondition.HeightLimitViolated;
+        } else { // X -> Handover
+          if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
+          Block block;
+          if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
+          else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+          if (!block.Ready) return MoveCondition.BlockNotReady;
+        }
+        return MoveCondition.Valid;
+      }*/
+
+      private IEnumerable<Event> OrderCompletion() {
       var before = Now;
       using (var req = handover.Request()) {
         yield return req;
