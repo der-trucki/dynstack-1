@@ -650,7 +650,16 @@ namespace DynStack.Simulation.HS
         if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
         else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
 
-        if (!block.Ready) return MoveCondition.Invalid;
+        if (!block.Ready)
+        {
+          World.KPIs.CraneMoveReward += -50;
+          returnCondition = MoveCondition.HandoverNotReadyBlock;
+        }
+        else
+        {
+          World.KPIs.CraneMoveReward += 500;
+          returnCondition = MoveCondition.HandoverReadyBlock;
+        }
       }
 
       return returnCondition;
