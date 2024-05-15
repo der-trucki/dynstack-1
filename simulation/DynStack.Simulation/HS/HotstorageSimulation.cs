@@ -8,7 +8,8 @@ using DynStack.DataModel;
 using DynStack.DataModel.HS;
 using SimSharp;
 
-namespace DynStack.Simulation.HS {
+namespace DynStack.Simulation.HS
+{
   /*public enum MoveCondition {
     Valid,
     InvalidBlockId,
@@ -32,6 +33,7 @@ namespace DynStack.Simulation.HS {
     HandoverNotReady, // R = -50
     FullHandover, // R = -50 . Handover is full
     NoPurposeMove, // R = -50 
+    NoPurposeMoveOfReadyBlock, // R = -200
     PurposeMove, // R = -10 . For each block to ready block -> add -10
     SourceEmpty, // R = 20 . Stack gets empty
     MoveToTopReady, // R = -200 
@@ -40,7 +42,8 @@ namespace DynStack.Simulation.HS {
     Valid, // default 
   }
 
-  public class HotstorageSimulation {
+  public class HotstorageSimulation
+  {
     private PseudoRealtimeSimulation sim;
     public const int MAX_OBSERVATIONS = 100;
     public World World { get; private set; }
@@ -62,13 +65,15 @@ namespace DynStack.Simulation.HS {
     public TimeSeriesMonitor HandoverUtilization { get; private set; }
     public TimeSeriesMonitor UpstreamUtilization { get; private set; }
     public bool SimulateAsync { get; set; }
-    public void SetLogger(TextWriter logger) {
+    public void SetLogger(TextWriter logger)
+    {
       sim.Logger = logger;
     }
 
     public TimeStamp Now => ToTimeStamp(sim.Now);
 
-    public async Task<World> RunAsync() {
+    public async Task<World> RunAsync()
+    {
       sim.Process(OrderGenerator());
       if (World.Handover.Block != null)
         sim.Process(OrderCompletion());
@@ -82,8 +87,10 @@ namespace DynStack.Simulation.HS {
       World.KPIs.BlockedArrivalTime = (1 - UpstreamUtilization.Mean) * (sim.Now - sim.StartDate).TotalSeconds;
 
       var remainingBlocks = World.BlocksInSystem();
-      foreach (var block in remainingBlocks) {
-        if (block.Due < Now) {
+      foreach (var block in remainingBlocks)
+      {
+        if (block.Due < Now)
+        {
           Tardiness.Add((Now - block.Due).TotalSeconds);
           World.KPIs.TardinessMean = Tardiness.Mean;
         }
@@ -94,7 +101,8 @@ namespace DynStack.Simulation.HS {
       return World;
     }
 
-    public World Run() {
+    public World Run()
+    {
       sim.Process(OrderGenerator());
       if (World.Handover.Block != null)
         sim.Process(OrderCompletion());
@@ -107,7 +115,8 @@ namespace DynStack.Simulation.HS {
       World.KPIs.BlockedArrivalTime = (1 - UpstreamUtilization.Mean) * (sim.Now - sim.StartDate).TotalSeconds;
 
       var remainingBlocks = World.BlocksInSystem();
-      foreach (var block in remainingBlocks) {
+      foreach (var block in remainingBlocks)
+      {
         Tardiness.Add((Now - block.Due).TotalSeconds);
         World.KPIs.TardinessMean = Tardiness.Mean;
       }
@@ -116,19 +125,23 @@ namespace DynStack.Simulation.HS {
       return World;
     }
 
-    public void StopAsync() {
+    public void StopAsync()
+    {
       sim.StopAsync();
     }
 
-    private double CalculateGirderPosition(int locationId) {
+    private double CalculateGirderPosition(int locationId)
+    {
       return (double)locationId / (settings.BufferCount + 1);
     }
 
-    private double CalculateHoistPosition(int level) {
+    private double CalculateHoistPosition(int level)
+    {
       return (double)level / (settings.BufferMaxHeight + 1);
     }
 
-    public HotstorageSimulation(Settings set) {
+    public HotstorageSimulation(Settings set)
+    {
       settings = set;
       sim = new PseudoRealtimeSimulation(DateTime.UtcNow, settings.Seed);
       ServiceLevel = new SampleMonitor("SerivceLevel");
@@ -139,7 +152,8 @@ namespace DynStack.Simulation.HS {
       HandoverUtilization = new TimeSeriesMonitor(sim, "HandoverUtilization");
       UpstreamUtilization = new TimeSeriesMonitor(sim, "UpstreamUtilization");
       lastScheduleSequence = int.MinValue;
-      World = new World {
+      World = new World
+      {
         Production = new Stack { Id = 0, MaxHeight = settings.ProductionMaxHeight, BottomToTop = new List<Block>() },
         Buffers = Enumerable.Range(1, settings.BufferCount).Select(x => new Stack { Id = x, MaxHeight = settings.BufferMaxHeight, BottomToTop = new List<Block>() }).ToList(),
         Handover = new Handover() { Id = settings.BufferCount + 1, Ready = false },
@@ -161,12 +175,14 @@ namespace DynStack.Simulation.HS {
     /// </summary>
     /// <param name="set">The settings that the simulation should run with.</param>
     /// <param name="policy">The policy that handles the crane orders.</param>
-    public HotstorageSimulation(Settings set, IPolicy policy) : this(set) {
+    public HotstorageSimulation(Settings set, IPolicy policy) : this(set)
+    {
       this.policy = policy;
       sim.SetVirtualtime();
     }
 
-    private void InitializeWorldState() {
+    private void InitializeWorldState()
+    {
       var rand = new Random(settings.Seed);
       var initRand = new PcgRandom(rand.Next());
       craneRNG = new PcgRandom(rand.Next());
@@ -175,15 +191,18 @@ namespace DynStack.Simulation.HS {
       readyRNG = new PcgRandom(rand.Next());
       var capacity = World.Buffers.Sum(x => x.MaxHeight);
       var past = sim.Now;
-      for (var i = 0; i < settings.InitialNumberOfBlocks; i++) {
+      for (var i = 0; i < settings.InitialNumberOfBlocks; i++)
+      {
         past -= sim.RandLogNormal2(initRand, settings.ArrivalTimeMean, settings.ArrivalTimeStd);
-        var b = new Block() {
+        var b = new Block()
+        {
           Id = ++blockIds,
           Release = ToTimeStamp(past),
           Ready = false,
           Due = ToTimeStamp(past + sim.RandLogNormal2(initRand, settings.DueTimeMean, settings.DueTimeStd))
         };
-        while (b.Due < ToTimeStamp(sim.Now + settings.DueTimeMin)) {
+        while (b.Due < ToTimeStamp(sim.Now + settings.DueTimeMin))
+        {
           b.Due += sim.RandLogNormal2(initRand, settings.DueTimeMean, settings.DueTimeStd);
         }
         var readyFactor = settings.ReadyFactorMin + initRand.NextDouble() * (settings.ReadyFactorMax - settings.ReadyFactorMin);
@@ -198,7 +217,8 @@ namespace DynStack.Simulation.HS {
       }
       BufferUtilization.UpdateTo(World.Buffers.Sum(x => x.Height) / (double)World.Buffers.Sum(x => x.MaxHeight));
       World.KPIs.BufferUtilizationMean = BufferUtilization.Mean;
-      World.Production.BottomToTop.Add(new Block() {
+      World.Production.BottomToTop.Add(new Block()
+      {
         Id = ++blockIds,
         Release = ToTimeStamp(sim.Now),
         Ready = false,
@@ -209,27 +229,34 @@ namespace DynStack.Simulation.HS {
       sim.Process(WorldUpdates());
     }
 
-    public async Task SetCraneScheduleAsync(CraneSchedule schedule) {
-      await Task.Run(() => {
+    public async Task SetCraneScheduleAsync(CraneSchedule schedule)
+    {
+      await Task.Run(() =>
+      {
         sim.Process(Crane(schedule));
       });
     }
 
-    private IEnumerable<Event> OrderGenerator() {
-      using (var req = upstream.Request()) {
+    private IEnumerable<Event> OrderGenerator()
+    {
+      using (var req = upstream.Request())
+      {
         yield return req;
 
-        while (true) {
+        while (true)
+        {
           var before = Now;
           //yield return sim.TimeoutExponential(productionRNG, settings.ArrivalInterval);
           yield return sim.Timeout(sim.RandLogNormal2(productionRNG, settings.ArrivalTimeMean, settings.ArrivalTimeStd));
 
-          if (World.Production.BottomToTop.Count >= World.Production.MaxHeight) {
+          if (World.Production.BottomToTop.Count >= World.Production.MaxHeight)
+          {
             // uh-oh production stack is full, very bad!
             //sim.Log("{0} Production stack full, upstream process halts!", Now);
             break;
           }
-          var block = new Block {
+          var block = new Block
+          {
             Id = ++blockIds,
             Release = ToTimeStamp(sim.Now),
             Ready = false,
@@ -248,10 +275,12 @@ namespace DynStack.Simulation.HS {
       }
     }
 
-    private IEnumerable<Event> BlockProcess(Block block, bool suppressEvent = false) {
+    private IEnumerable<Event> BlockProcess(Block block, bool suppressEvent = false)
+    {
       World.KPIs.TotalBlocksOnTime++;
       if (!suppressEvent) OnWorldChanged(kpichange: true);
-      if (!block.Ready) {
+      if (!block.Ready)
+      {
         var delta = (Now - block.Release); // if block release was already, e.g. after initializing world state
         var timeout = TimeSpan.FromSeconds(sim.RandUniform(readyRNG, settings.ReadyFactorMin, settings.ReadyFactorMax) * (block.Due - block.Release).TotalSeconds) - delta;
         if (timeout > TimeSpan.Zero)
@@ -279,7 +308,8 @@ namespace DynStack.Simulation.HS {
 
     private enum MoveDirection { Horizontal, Vertical }
 
-    public World GetEstimatedWorldState() {
+    public World GetEstimatedWorldState()
+    {
       if (World == null) return World;
 
       World.Now = Now;
@@ -292,7 +322,8 @@ namespace DynStack.Simulation.HS {
       if (moveDuration.TotalMilliseconds > 0)
         pos += moveLength * elapsed.TotalMilliseconds / moveDuration.TotalMilliseconds;
 
-      switch (moveDirection) {
+      switch (moveDirection)
+      {
         case MoveDirection.Horizontal: World.Crane.GirderPosition = pos; break;
         case MoveDirection.Vertical: World.Crane.HoistPosition = pos; break;
       }
@@ -300,10 +331,12 @@ namespace DynStack.Simulation.HS {
       return World;
     }
 
-    private IEnumerable<Event> Crane(CraneSchedule schedule, double delay = 0) {
+    private IEnumerable<Event> Crane(CraneSchedule schedule, double delay = 0)
+    {
       if (delay > 0) yield return sim.Timeout(TimeSpan.FromSeconds(delay));
 
-      if (schedule.SequenceNr < 0) {
+      if (schedule.SequenceNr < 0)
+      {
         OnWorldChanged();
         yield break;
       }
@@ -312,11 +345,14 @@ namespace DynStack.Simulation.HS {
       if (schedule.SequenceNr < lastScheduleSequence) yield break;
       lastScheduleSequence = schedule.SequenceNr;
 
-      using (var req = crane.Request()) {
+      using (var req = crane.Request())
+      {
         yield return req;
         if (schedule.SequenceNr < lastScheduleSequence) yield break;
-        if (schedule.Moves.Count == 0) {
-          if (World.Crane.Schedule.Moves.Count > 0 || World.Crane.Schedule.SequenceNr < schedule.SequenceNr) {
+        if (schedule.Moves.Count == 0)
+        {
+          if (World.Crane.Schedule.Moves.Count > 0 || World.Crane.Schedule.SequenceNr < schedule.SequenceNr)
+          {
             World.Crane.Schedule = schedule;
             OnWorldChanged();
           }
@@ -330,22 +366,26 @@ namespace DynStack.Simulation.HS {
 
         var removes = false;
         if (schedule.Moves == null) { yield break; }
-        foreach (var move in schedule.Moves.ToList()) {
+        foreach (var move in schedule.Moves.ToList())
+        {
           var condition = CheckMoveCondition(move);
-          if (condition == MoveCondition.Invalid) {
+          if (condition == MoveCondition.Invalid)
+          {
             //sim.Log($"Invalid Move {move} {condition}");
             World.Crane.Schedule.Moves.Remove(move);
             World.InvalidMoves.Add(move);
             removes = true;
             continue;
           }
-          if (removes) {
+          if (removes)
+          {
             //sim.Log("{0} Crane had to skip some infeasible orders.", Now);
             OnWorldChanged();
             removes = false;
           }
 
-          if (move.EmptyMove) {
+          if (move.EmptyMove)
+          {
             //sim.Log("{0} Next move (seq: {2}): Position crane over stack {1}.", Now, move.TargetId, move.Sequence);
             yield return sim.Process(MoveCraneHorizontal(move.TargetId));
             World.Crane.Schedule.Moves.Remove(move);
@@ -354,21 +394,30 @@ namespace DynStack.Simulation.HS {
             continue;
           }
 
-          if (move.SourceId == World.Production.Id) {
-            if (move.TargetId == World.Handover.Id) {
+          if (move.SourceId == World.Production.Id)
+          {
+            if (move.TargetId == World.Handover.Id)
+            {
               //sim.Log("{0} Next move (seq: {2}): Directly remove block {1}.", Now, move.BlockId, move.Sequence);
-            } else {
+            }
+            else
+            {
               //sim.Log("{0} Next move (seq: {3}): Put block {1} at buffer {2}.", Now, move.BlockId, move.TargetId, move.Sequence);
             }
-          } else if (move.TargetId == World.Handover.Id) {
+          }
+          else if (move.TargetId == World.Handover.Id)
+          {
             //sim.Log("{0} Next move (seq: {3}): Remove block {1} from {2}.", Now, move.BlockId, move.SourceId, move.Sequence);
-          } else {
+          }
+          else
+          {
             //sim.Log("{0} Next move (seq: {4}): Relocate block {1} from {2} to {3}.", Now, move.BlockId, move.SourceId, move.TargetId, move.Sequence);
           }
 
 
           // move crane to source position (or target if just a crane move without relocation)
-          if (World.Crane.LocationId != move.SourceId) {
+          if (World.Crane.LocationId != move.SourceId)
+          {
             yield return sim.Process(MoveCraneHorizontal(move.SourceId));
           }
 
@@ -411,14 +460,16 @@ namespace DynStack.Simulation.HS {
           OnWorldChanged();
           if (schedule.SequenceNr < lastScheduleSequence) yield break;
         }
-        if (removes) {
+        if (removes)
+        {
           //sim.Log("{0} Crane had to skip some infeasible orders.", Now);
           OnWorldChanged();
         }
       }
     }
 
-    private IEnumerable<Event> MoveCraneHorizontal(int targetLocationId) {
+    private IEnumerable<Event> MoveCraneHorizontal(int targetLocationId)
+    {
       moveStart = Now;
       fromPos = CalculateGirderPosition(World.Crane.LocationId);
       toPos = CalculateGirderPosition(targetLocationId);
@@ -438,7 +489,8 @@ namespace DynStack.Simulation.HS {
 
     private enum HoistAction { Move, Pickup, Dropoff }
 
-    private IEnumerable<Event> MoveCraneVertical(HoistAction action, int level, IStackingLocation stack = null) {
+    private IEnumerable<Event> MoveCraneVertical(HoistAction action, int level, IStackingLocation stack = null)
+    {
       moveStart = Now;
       fromPos = World.Crane.HoistPosition;
       toPos = CalculateHoistPosition(level);
@@ -449,11 +501,14 @@ namespace DynStack.Simulation.HS {
 
       yield return sim.Timeout(moveDuration);
 
-      if (action == HoistAction.Pickup) {
+      if (action == HoistAction.Pickup)
+      {
         World.Crane.Load = stack.Pickup();
         //sim.Log($"{Now} Crane picked up block ({World.Crane.Load.Id}) at location {World.Crane.LocationId}");
         World.KPIs.CraneManipulations++;
-      } else if (action == HoistAction.Dropoff) {
+      }
+      else if (action == HoistAction.Dropoff)
+      {
         var block = World.Crane.Load;
         stack.Drop(block);
         World.Crane.Load = null;
@@ -470,35 +525,119 @@ namespace DynStack.Simulation.HS {
 
     private MoveCondition CheckMoveCondition(CraneMove move)
     {
-      // brauchts die ReturnCondition?
       var returnCondition = MoveCondition.Valid;
-      if(move.SourceId == 0) // Production -> X
-      {  
+      bool clearProd = false;
 
-      }
-      else if (move.SourceId <= World.Buffers.Count) // Buffer -> X
+      if (move.SourceId == 0) // Production -> X
       {
-        
+        clearProd = true;
+        if (World.Production.BottomToTop.Count == 0) // empty prod stack
+        {
+          clearProd = false;
+          World.KPIs.CraneMoveReward -= 50;
+          returnCondition = MoveCondition.EmptyEmptyArrival;
+        }
+        else if (World.Production.BottomToTop.Count == World.Production.MaxHeight) // 100% full
+        {
+          World.KPIs.CraneMoveReward += 600;
+          returnCondition = MoveCondition.EmptyFullArrival;
+        }
+        else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.75) // >= 75% full
+        {
+          World.KPIs.CraneMoveReward += 150;
+          returnCondition = MoveCondition.EmptyThreeQuatFullArrival;
+        }
+        else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.25) // >= 25% full
+        {
+          World.KPIs.CraneMoveReward += 25;
+          returnCondition = MoveCondition.EmptyQuatFullArrival;
+        }
+        else // < 25% full
+        {
+          World.KPIs.CraneMoveReward += 10;
+          returnCondition = MoveCondition.PurposeMove;
+        }
       }
-      else returnCondition = MoveCondition.Invalid;
+      else if (move.SourceId <= World.Buffers.Count &&
+              move.TargetId != World.Handover.Id) // Buffer -> X ; Handover-moves are handled later
+      {
+        int sourceIndex = move.SourceId - 1;
 
-      if (move.TargetId == 0) return MoveCondition.Invalid; // X -> Production
+        // check top down if there are ready blocks underneath.
+        for (int i = World.Buffers[sourceIndex].BottomToTop.Count - 1; i > 0; i++)
+        {
+          World.KPIs.CraneMoveReward += -10;
+          if (World.Buffers[sourceIndex].BottomToTop[i].Ready)
+          {
+            if(World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
+            {
+              World.KPIs.CraneMoveReward += -200;
+              returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
+            }
+            else
+            {
+            returnCondition = MoveCondition.PurposeMove;
+            }
+            break;
+          }
+          returnCondition = MoveCondition.NoPurposeMove;
+        }
+
+        // if source gets empty with this move -> small reward
+        if(World.Buffers[sourceIndex].BottomToTop.Count == 1)
+        {
+          World.KPIs.CraneMoveReward += 20;
+          returnCondition = MoveCondition.SourceEmpty;
+        }
+
+      }
+      else
+      {
+        // unvalid moves should "hurt"
+        World.KPIs.CraneMoveReward += -200;
+        returnCondition = MoveCondition.Invalid;
+      }
+
+      if (move.TargetId == 0) // X -> Production
+      {
+        // unvalid moves should "hurt"
+        World.KPIs.CraneMoveReward += -200;
+        returnCondition = MoveCondition.Invalid;
+      }
       else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
       {
         int targetIndex = move.TargetId - 1;
-        if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
+
+        // is target stack full?
+        if (World.Buffers[targetIndex].BottomToTop.Count == World.Buffers[targetIndex].MaxHeight)
         {
+          // unvalid moves should "hurt"
           World.KPIs.CraneMoveReward += -200;
-          returnCondition = MoveCondition.MoveToTopReady;
-        }else if(World.Buffers[targetIndex].BottomToTop.First().Ready)
+          returnCondition = MoveCondition.Invalid;
+        }
+        else
         {
-          World.KPIs.CraneMoveReward += -30;
-          returnCondition = MoveCondition.MoveToStackReady;
+          var readyBlock = World.Buffers[targetIndex].BottomToTop.Where(item => item.Ready).FirstOrDefault();
+
+          // is on top ready block?
+          if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
+          {
+            // if source is prod, reward is "only" -100
+            World.KPIs.CraneMoveReward += clearProd ? -100 : -200;
+            returnCondition = MoveCondition.MoveToTopReady;
+          }
+          else if (readyBlock != null) // target stack contains min one ready block
+          {
+            // if source is prod, reward is "only" -25
+            World.KPIs.CraneMoveReward += clearProd ? -25 : -30;
+            returnCondition = MoveCondition.MoveToStackReady;
+          }
         }
       }
       else
       { // X -> Handover
-        if (!World.Handover.Ready) {
+        if (!World.Handover.Ready)
+        {
           World.KPIs.CraneMoveReward += -50;
           returnCondition = MoveCondition.HandoverNotReady;
         }
@@ -516,45 +655,50 @@ namespace DynStack.Simulation.HS {
 
       return returnCondition;
     }
-      /* old source
-      private MoveCondition CheckMoveCondition(CraneMove move) {
-        if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
-        if (move.SourceId == 0) { // Production -> X
-          var block = World.Production.BottomToTop.LastOrDefault();
-          if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
-        } else if (move.SourceId <= World.Buffers.Count) { // Buffer -> X
-          var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
-          if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
-        } else return MoveCondition.InvalidSource; // Handover -> X
-        if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
-        else if (move.TargetId <= World.Buffers.Count) { // X -> Buffer
-          if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
-            return MoveCondition.HeightLimitViolated;
-        } else { // X -> Handover
-          if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
-          Block block;
-          if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
-          else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
-          if (!block.Ready) return MoveCondition.BlockNotReady;
-        }
-        return MoveCondition.Valid;
-      }*/
+    /* old source
+    private MoveCondition CheckMoveCondition(CraneMove move) {
+      if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
+      if (move.SourceId == 0) { // Production -> X
+        var block = World.Production.BottomToTop.LastOrDefault();
+        if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
+      } else if (move.SourceId <= World.Buffers.Count) { // Buffer -> X
+        var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+        if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
+      } else return MoveCondition.InvalidSource; // Handover -> X
+      if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
+      else if (move.TargetId <= World.Buffers.Count) { // X -> Buffer
+        if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
+          return MoveCondition.HeightLimitViolated;
+      } else { // X -> Handover
+        if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
+        Block block;
+        if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
+        else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+        if (!block.Ready) return MoveCondition.BlockNotReady;
+      }
+      return MoveCondition.Valid;
+    }*/
 
-      private IEnumerable<Event> OrderCompletion() {
+    private IEnumerable<Event> OrderCompletion()
+    {
       var before = Now;
-      using (var req = handover.Request()) {
+      using (var req = handover.Request())
+      {
         yield return req;
 
         var block = World.Handover.Block;
         while (!block.Ready) { yield return sim.Timeout(settings.CheckInterval); } // TODO: when ready ?!
         block.Delivered = true;
 
-        if (block.Due >= Now) {
+        if (block.Due >= Now)
+        {
           ServiceLevel.Add(1); // A 0 will be entered by BlockProcess
           World.KPIs.ServiceLevelMean = ServiceLevel.Mean;
           Tardiness.Add(0);
           World.KPIs.TardinessMean = Tardiness.Mean;
-        } else {
+        }
+        else
+        {
           var tardiness = Now - block.Due;
           Tardiness.Add(tardiness.TotalSeconds);
           World.KPIs.TardinessMean = Tardiness.Mean;
@@ -585,16 +729,20 @@ namespace DynStack.Simulation.HS {
 
     private bool _worldChanged;
     public event EventHandler WorldChanged;
-    private void OnWorldChanged(bool kpichange = false) {
+    private void OnWorldChanged(bool kpichange = false)
+    {
       _worldChanged = true;
     }
-    private IEnumerable<Event> WorldUpdates() {
+    private IEnumerable<Event> WorldUpdates()
+    {
       var updateInterval = 1000L; // must be > 1
-      while (true) {
+      while (true)
+      {
         // uncomment if you prefer world updates only for changes
         //if (_worldChanged) {
 
-        if (World.PolicyTime > 0) {
+        if (World.PolicyTime > 0)
+        {
           // Simulate that the policy took a certain to calculate
           World.PolicyTime = Math.Max(World.PolicyTime - updateInterval, 0L); // milliseconds
         }
@@ -605,7 +753,8 @@ namespace DynStack.Simulation.HS {
         World.KPIs.UpstreamUtilizationMean = UpstreamUtilization.Mean;
         World.KPIs.BlockedArrivalTime = (1 - UpstreamUtilization.Mean) * (sim.Now - sim.StartDate).TotalSeconds;
 
-        if (World.PolicyTime == 0) {
+        if (World.PolicyTime == 0)
+        {
           var sw = Stopwatch.StartNew();
           var schedule = policy?.GetSchedule(World);
           sw.Stop();
@@ -624,7 +773,8 @@ namespace DynStack.Simulation.HS {
       }
     }
 
-    private TimeStamp ToTimeStamp(DateTime dt) {
+    private TimeStamp ToTimeStamp(DateTime dt)
+    {
       var ms = Math.Round((dt - sim.StartDate).TotalMilliseconds);
       return new TimeStamp((long)ms);
     }

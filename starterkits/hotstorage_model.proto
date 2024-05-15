@@ -43,6 +43,7 @@ double BufferUtilizationMean = 8;
 double CraneUtilizationMean = 9;
 double HandoverUtilizationMean = 10;
 double UpstreamUtilizationMean = 11;
+double CraneMoveReward = 12;
 }
 message Stack {
 int32 Id = 1;
