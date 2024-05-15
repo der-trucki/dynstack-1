@@ -369,7 +369,7 @@ namespace DynStack.Simulation.HS
         foreach (var move in schedule.Moves.ToList())
         {
           var condition = CheckMoveCondition(move);
-          if (condition == MoveCondition.Invalid)
+          if (IsInvalidMoveCondition(condition))
           {
             //sim.Log($"Invalid Move {move} {condition}");
             World.Crane.Schedule.Moves.Remove(move);
@@ -465,6 +465,20 @@ namespace DynStack.Simulation.HS
           //sim.Log("{0} Crane had to skip some infeasible orders.", Now);
           OnWorldChanged();
         }
+      }
+    }
+
+    private bool IsInvalidMoveCondition(MoveCondition condition)
+    {
+      switch(condition)
+      {
+        case MoveCondition.Invalid:
+        case MoveCondition.FullHandover:
+        case MoveCondition.HandoverNotReady:
+        case MoveCondition.EmptyEmptyArrival:
+          return false;
+        default: 
+          return true;
       }
     }
 
@@ -643,6 +657,7 @@ namespace DynStack.Simulation.HS
         }
         else if (World.Handover.Block != null)
         {
+          World.KPIs.CraneMoveReward += -50;
           returnCondition = MoveCondition.FullHandover;
         }
 
