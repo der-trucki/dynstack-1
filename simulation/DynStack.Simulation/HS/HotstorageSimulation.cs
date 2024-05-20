@@ -541,6 +541,8 @@ namespace DynStack.Simulation.HS
     {
       var returnCondition = MoveCondition.Valid;
       bool clearProd = false;
+      // Reset reward befor each evaluation
+      World.KPIs.CraneMoveReward = 0;
 
       if (move.SourceId == 0) // Production -> X
       {
@@ -578,7 +580,7 @@ namespace DynStack.Simulation.HS
         int sourceIndex = move.SourceId - 1;
 
         // check top down if there are ready blocks underneath.
-        for (int i = World.Buffers[sourceIndex].BottomToTop.Count - 1; i > 0; i++)
+        for (int i = World.Buffers[sourceIndex].BottomToTop.Count - 1; i > 0; i--)
         {
           World.KPIs.CraneMoveReward += -10;
           if (World.Buffers[sourceIndex].BottomToTop[i].Ready)

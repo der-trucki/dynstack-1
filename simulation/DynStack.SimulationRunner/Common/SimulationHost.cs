@@ -130,7 +130,12 @@ namespace DynStack.SimulationRunner.Common {
     protected abstract byte[] GetDefaultSettings();
 
     private void DisposeSocket() {
-      try { _socket?.Dispose(); } catch { }
+      try {
+        var message = new NetMQMessage();
+        message.Append("false");
+        _socket?.TrySendMultipartMessage(TimeSpan.FromMinutes(1), message);
+        _socket?.Dispose(); 
+      } catch { }
     }
   }
 }
