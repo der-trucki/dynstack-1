@@ -550,7 +550,7 @@ namespace DynStack.Simulation.HS
         if (World.Production.BottomToTop.Count == 0) // empty prod stack
         {
           clearProd = false;
-          World.KPIs.CraneMoveReward -= 50;
+          World.KPIs.CraneMoveReward += -50;
           returnCondition = MoveCondition.EmptyEmptyArrival;
         }
         else if (World.Production.BottomToTop.Count == World.Production.MaxHeight) // 100% full
