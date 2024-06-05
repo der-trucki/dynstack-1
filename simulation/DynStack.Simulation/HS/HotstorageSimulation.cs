@@ -549,28 +549,13 @@ namespace DynStack.Simulation.HS
         clearProd = true;
         if (World.Production.BottomToTop.Count == 0) // empty prod stack
         {
+          World.KPIs.CraneMoveReward += -0.25;
           clearProd = false;
-          World.KPIs.CraneMoveReward += -50;
           returnCondition = MoveCondition.EmptyEmptyArrival;
         }
-        else if (World.Production.BottomToTop.Count == World.Production.MaxHeight) // 100% full
+        else
         {
-          World.KPIs.CraneMoveReward += 600;
-          returnCondition = MoveCondition.EmptyFullArrival;
-        }
-        else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.75) // >= 75% full
-        {
-          World.KPIs.CraneMoveReward += 150;
-          returnCondition = MoveCondition.EmptyThreeQuatFullArrival;
-        }
-        else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.25) // >= 25% full
-        {
-          World.KPIs.CraneMoveReward += 25;
-          returnCondition = MoveCondition.EmptyQuatFullArrival;
-        }
-        else // < 25% full
-        {
-          World.KPIs.CraneMoveReward += 10;
+          World.KPIs.CraneMoveReward += 0.25;
           returnCondition = MoveCondition.PurposeMove;
         }
       }
@@ -582,17 +567,15 @@ namespace DynStack.Simulation.HS
         // check top down if there are ready blocks underneath.
         for (int i = World.Buffers[sourceIndex].BottomToTop.Count - 1; i > 0; i--)
         {
-          World.KPIs.CraneMoveReward += -10;
           if (World.Buffers[sourceIndex].BottomToTop[i].Ready)
           {
-            if(World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
+            if (World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
             {
-              World.KPIs.CraneMoveReward += -200;
               returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
             }
             else
             {
-            returnCondition = MoveCondition.PurposeMove;
+              returnCondition = MoveCondition.PurposeMove;
             }
             break;
           }
@@ -600,24 +583,23 @@ namespace DynStack.Simulation.HS
         }
 
         // if source gets empty with this move -> small reward
-        if(World.Buffers[sourceIndex].BottomToTop.Count == 1)
+        if (World.Buffers[sourceIndex].BottomToTop.Count == 1)
         {
-          World.KPIs.CraneMoveReward += 20;
+          World.KPIs.CraneMoveReward += 0.1;
           returnCondition = MoveCondition.SourceEmpty;
         }
-
       }
       else
       {
         // unvalid moves should "hurt"
-        World.KPIs.CraneMoveReward += -200;
+        World.KPIs.CraneMoveReward += -1;
         returnCondition = MoveCondition.Invalid;
       }
 
       if (move.TargetId == 0) // X -> Production
       {
         // unvalid moves should "hurt"
-        World.KPIs.CraneMoveReward += -200;
+        World.KPIs.CraneMoveReward += -1;
         returnCondition = MoveCondition.Invalid;
       }
       else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
@@ -628,7 +610,7 @@ namespace DynStack.Simulation.HS
         if (World.Buffers[targetIndex].BottomToTop.Count == World.Buffers[targetIndex].MaxHeight)
         {
           // unvalid moves should "hurt"
-          World.KPIs.CraneMoveReward += -200;
+          World.KPIs.CraneMoveReward += -1;
           returnCondition = MoveCondition.Invalid;
         }
         else
@@ -638,14 +620,13 @@ namespace DynStack.Simulation.HS
           // is on top ready block?
           if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
           {
-            // if source is prod, reward is "only" -100
-            World.KPIs.CraneMoveReward += clearProd ? -100 : -200;
+            World.KPIs.CraneMoveReward += -0.5;
             returnCondition = MoveCondition.MoveToTopReady;
           }
           else if (readyBlock != null) // target stack contains min one ready block
           {
             // if source is prod, reward is "only" -25
-            World.KPIs.CraneMoveReward += clearProd ? -25 : -30;
+            World.KPIs.CraneMoveReward += -0.5;
             returnCondition = MoveCondition.MoveToStackReady;
           }
         }
@@ -654,12 +635,12 @@ namespace DynStack.Simulation.HS
       { // X -> Handover
         if (!World.Handover.Ready)
         {
-          World.KPIs.CraneMoveReward += -50;
+          World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.HandoverNotReady;
         }
         else if (World.Handover.Block != null)
         {
-          World.KPIs.CraneMoveReward += -50;
+          World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.FullHandover;
         }
 
@@ -669,41 +650,162 @@ namespace DynStack.Simulation.HS
 
         if (!block.Ready)
         {
-          World.KPIs.CraneMoveReward += -50;
+          World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.HandoverNotReadyBlock;
         }
         else
         {
-          World.KPIs.CraneMoveReward += 500;
+          World.KPIs.CraneMoveReward += 1;
           returnCondition = MoveCondition.HandoverReadyBlock;
         }
       }
 
       return returnCondition;
     }
-    /* old source
-    private MoveCondition CheckMoveCondition(CraneMove move) {
-      if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
-      if (move.SourceId == 0) { // Production -> X
-        var block = World.Production.BottomToTop.LastOrDefault();
-        if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
-      } else if (move.SourceId <= World.Buffers.Count) { // Buffer -> X
-        var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
-        if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
-      } else return MoveCondition.InvalidSource; // Handover -> X
-      if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
-      else if (move.TargetId <= World.Buffers.Count) { // X -> Buffer
-        if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
-          return MoveCondition.HeightLimitViolated;
-      } else { // X -> Handover
-        if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
-        Block block;
-        if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
-        else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
-        if (!block.Ready) return MoveCondition.BlockNotReady;
-      }
-      return MoveCondition.Valid;
-    }*/
+
+    //private MoveCondition CheckMoveCondition(CraneMove move)
+    //{
+    //  var returnCondition = MoveCondition.Valid;
+    //  bool clearProd = false;
+    //  // Reset reward befor each evaluation
+    //  World.KPIs.CraneMoveReward = 0;
+
+    //  if (move.SourceId == 0) // Production -> X
+    //  {
+    //    clearProd = true;
+    //    if (World.Production.BottomToTop.Count == 0) // empty prod stack
+    //    {
+    //      clearProd = false;
+    //      World.KPIs.CraneMoveReward += -50 / 1000;
+    //      returnCondition = MoveCondition.EmptyEmptyArrival;
+    //    }
+    //    else if (World.Production.BottomToTop.Count == World.Production.MaxHeight) // 100% full
+    //    {
+    //      World.KPIs.CraneMoveReward += 600 / 1000;
+    //      returnCondition = MoveCondition.EmptyFullArrival;
+    //    }
+    //    else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.75) // >= 75% full
+    //    {
+    //      World.KPIs.CraneMoveReward += 150 / 1000;
+    //      returnCondition = MoveCondition.EmptyThreeQuatFullArrival;
+    //    }
+    //    else if (World.Production.BottomToTop.Count >= World.Production.MaxHeight * 0.25) // >= 25% full
+    //    {
+    //      World.KPIs.CraneMoveReward += 25 / 1000;
+    //      returnCondition = MoveCondition.EmptyQuatFullArrival;
+    //    }
+    //    else // < 25% full
+    //    {
+    //      World.KPIs.CraneMoveReward += 10 / 1000;
+    //      returnCondition = MoveCondition.PurposeMove;
+    //    }
+    //  }
+    //  else if (move.SourceId <= World.Buffers.Count &&
+    //          move.TargetId != World.Handover.Id) // Buffer -> X ; Handover-moves are handled later
+    //  {
+    //    int sourceIndex = move.SourceId - 1;
+
+    //    // check top down if there are ready blocks underneath.
+    //    for (int i = World.Buffers[sourceIndex].BottomToTop.Count - 1; i > 0; i--)
+    //    {
+    //      World.KPIs.CraneMoveReward += -10 / 1000;
+    //      if (World.Buffers[sourceIndex].BottomToTop[i].Ready)
+    //      {
+    //        if (World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
+    //        {
+    //          World.KPIs.CraneMoveReward += -200 / 1000;
+    //          returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
+    //        }
+    //        else
+    //        {
+    //          returnCondition = MoveCondition.PurposeMove;
+    //        }
+    //        break;
+    //      }
+    //      returnCondition = MoveCondition.NoPurposeMove;
+    //    }
+
+    //    // if source gets empty with this move -> small reward
+    //    if (World.Buffers[sourceIndex].BottomToTop.Count == 1)
+    //    {
+    //      World.KPIs.CraneMoveReward += 20 / 1000;
+    //      returnCondition = MoveCondition.SourceEmpty;
+    //    }
+    //  }
+    //  else
+    //  {
+    //    // unvalid moves should "hurt"
+    //    World.KPIs.CraneMoveReward += -200 / 1000;
+    //    returnCondition = MoveCondition.Invalid;
+    //  }
+
+    //  if (move.TargetId == 0) // X -> Production
+    //  {
+    //    // unvalid moves should "hurt"
+    //    World.KPIs.CraneMoveReward += -200 / 1000;
+    //    returnCondition = MoveCondition.Invalid;
+    //  }
+    //  else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
+    //  {
+    //    int targetIndex = move.TargetId - 1;
+
+    //    // is target stack full?
+    //    if (World.Buffers[targetIndex].BottomToTop.Count == World.Buffers[targetIndex].MaxHeight)
+    //    {
+    //      // unvalid moves should "hurt"
+    //      World.KPIs.CraneMoveReward += -200 / 1000;
+    //      returnCondition = MoveCondition.Invalid;
+    //    }
+    //    else
+    //    {
+    //      var readyBlock = World.Buffers[targetIndex].BottomToTop.Where(item => item.Ready).FirstOrDefault();
+
+    //      // is on top ready block?
+    //      if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
+    //      {
+    //        // if source is prod, reward is "only" -100
+    //        World.KPIs.CraneMoveReward += (clearProd ? -100 : -200) / 1000;
+    //        returnCondition = MoveCondition.MoveToTopReady;
+    //      }
+    //      else if (readyBlock != null) // target stack contains min one ready block
+    //      {
+    //        // if source is prod, reward is "only" -25
+    //        World.KPIs.CraneMoveReward += (clearProd ? -25 : -30) / 1000;
+    //        returnCondition = MoveCondition.MoveToStackReady;
+    //      }
+    //    }
+    //  }
+    //  else
+    //  { // X -> Handover
+    //    if (!World.Handover.Ready)
+    //    {
+    //      World.KPIs.CraneMoveReward += -50 / 1000;
+    //      returnCondition = MoveCondition.HandoverNotReady;
+    //    }
+    //    else if (World.Handover.Block != null)
+    //    {
+    //      World.KPIs.CraneMoveReward += -50 / 1000;
+    //      returnCondition = MoveCondition.FullHandover;
+    //    }
+
+    //    Block block;
+    //    if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
+    //    else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+
+    //    if (!block.Ready)
+    //    {
+    //      World.KPIs.CraneMoveReward += -50 / 1000;
+    //      returnCondition = MoveCondition.HandoverNotReadyBlock;
+    //    }
+    //    else
+    //    {
+    //      World.KPIs.CraneMoveReward += 500 / 1000;
+    //      returnCondition = MoveCondition.HandoverReadyBlock;
+    //    }
+    //  }
+
+    //  return returnCondition;
+    //}
 
     private IEnumerable<Event> OrderCompletion()
     {

@@ -1,0 +1,1 @@
+dotnet run --project DynStack.SimulationRunner --sim HS --url tcp://127.0.0.1:2222 --id 658f9b28-6686-40d2-8800-611bd8466215 --settings settings/HS/GECCO2021/HS-Training-3-Stacks-A.buf

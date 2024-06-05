@@ -109,6 +109,7 @@ namespace DynStack.SimulationRunner.HS {
         HandoverTimeMean = TimeSpan.FromSeconds(4),
         HandoverTimeStd = TimeSpan.FromSeconds(1),
 
+        //SimulationDuration = TimeSpan.FromMinutes(1),
         SimulationDuration = TimeSpan.FromHours(1)
       };
     }
