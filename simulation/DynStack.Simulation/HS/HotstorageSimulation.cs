@@ -331,6 +331,14 @@ namespace DynStack.Simulation.HS
       return World;
     }
 
+    private void WriteConditionToFile(String condition)
+    {
+      using (StreamWriter outputFile = new StreamWriter(Path.Combine("C:\\temp", "WriteLines.txt"), true))
+      {
+        outputFile.WriteLine(condition);
+      }
+    }
+
     private IEnumerable<Event> Crane(CraneSchedule schedule, double delay = 0)
     {
       if (delay > 0) yield return sim.Timeout(TimeSpan.FromSeconds(delay));
@@ -369,6 +377,7 @@ namespace DynStack.Simulation.HS
         foreach (var move in schedule.Moves.ToList())
         {
           var condition = CheckMoveCondition(move);
+
           if (IsInvalidMoveCondition(condition))
           {
             //sim.Log($"Invalid Move {move} {condition}");
@@ -539,6 +548,8 @@ namespace DynStack.Simulation.HS
 
     private MoveCondition CheckMoveCondition(CraneMove move)
     {
+      this.WriteConditionToFile("Start evaluate");
+
       var returnCondition = MoveCondition.Valid;
       bool clearProd = false;
       // Reset reward befor each evaluation
@@ -552,11 +563,13 @@ namespace DynStack.Simulation.HS
           World.KPIs.CraneMoveReward += -0.25;
           clearProd = false;
           returnCondition = MoveCondition.EmptyEmptyArrival;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
-          World.KPIs.CraneMoveReward += 0.25;
+          World.KPIs.CraneMoveReward += 1;
           returnCondition = MoveCondition.PurposeMove;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
       }
       else if (move.SourceId <= World.Buffers.Count &&
@@ -572,21 +585,25 @@ namespace DynStack.Simulation.HS
             if (World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
             {
               returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
+              this.WriteConditionToFile(returnCondition.ToString());
             }
             else
             {
               returnCondition = MoveCondition.PurposeMove;
+              this.WriteConditionToFile(returnCondition.ToString());
             }
             break;
           }
           returnCondition = MoveCondition.NoPurposeMove;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
 
         // if source gets empty with this move -> small reward
         if (World.Buffers[sourceIndex].BottomToTop.Count == 1)
         {
-          World.KPIs.CraneMoveReward += 0.1;
+          World.KPIs.CraneMoveReward += 0.25;
           returnCondition = MoveCondition.SourceEmpty;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
       }
       else
@@ -594,6 +611,7 @@ namespace DynStack.Simulation.HS
         // unvalid moves should "hurt"
         World.KPIs.CraneMoveReward += -1;
         returnCondition = MoveCondition.Invalid;
+        this.WriteConditionToFile(returnCondition.ToString());
       }
 
       if (move.TargetId == 0) // X -> Production
@@ -601,6 +619,7 @@ namespace DynStack.Simulation.HS
         // unvalid moves should "hurt"
         World.KPIs.CraneMoveReward += -1;
         returnCondition = MoveCondition.Invalid;
+        this.WriteConditionToFile(returnCondition.ToString());
       }
       else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
       {
@@ -612,6 +631,7 @@ namespace DynStack.Simulation.HS
           // unvalid moves should "hurt"
           World.KPIs.CraneMoveReward += -1;
           returnCondition = MoveCondition.Invalid;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
@@ -620,14 +640,16 @@ namespace DynStack.Simulation.HS
           // is on top ready block?
           if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
           {
-            World.KPIs.CraneMoveReward += -0.5;
+            World.KPIs.CraneMoveReward += -0.25;
             returnCondition = MoveCondition.MoveToTopReady;
+            this.WriteConditionToFile(returnCondition.ToString());
           }
           else if (readyBlock != null) // target stack contains min one ready block
           {
             // if source is prod, reward is "only" -25
-            World.KPIs.CraneMoveReward += -0.5;
+            World.KPIs.CraneMoveReward += -0.25;
             returnCondition = MoveCondition.MoveToStackReady;
+            this.WriteConditionToFile(returnCondition.ToString());
           }
         }
       }
@@ -635,13 +657,15 @@ namespace DynStack.Simulation.HS
       { // X -> Handover
         if (!World.Handover.Ready)
         {
-          World.KPIs.CraneMoveReward += -0.5;
+          //World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.HandoverNotReady;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
         else if (World.Handover.Block != null)
         {
           World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.FullHandover;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
 
         Block block;
@@ -652,14 +676,17 @@ namespace DynStack.Simulation.HS
         {
           World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.HandoverNotReadyBlock;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
           World.KPIs.CraneMoveReward += 1;
           returnCondition = MoveCondition.HandoverReadyBlock;
+          this.WriteConditionToFile(returnCondition.ToString());
         }
       }
 
+      this.WriteConditionToFile("End evaluate");
       return returnCondition;
     }
 
