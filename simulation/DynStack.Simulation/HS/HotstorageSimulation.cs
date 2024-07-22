@@ -10,7 +10,8 @@ using SimSharp;
 
 namespace DynStack.Simulation.HS
 {
-  /*public enum MoveCondition {
+  public enum MoveCondition
+  {
     Valid,
     InvalidBlockId,
     InvalidSource,
@@ -18,10 +19,10 @@ namespace DynStack.Simulation.HS
     HeightLimitViolated,
     BlockNotFound,
     HandoverNotReady,
-    BlockNotReady
-  }*/
-  public enum MoveCondition
-  {
+    BlockNotReady,
+  //}
+  //public enum MoveCondition
+  //{
     EmptyFullArrival, // R = 600
     EmptyThreeQuatFullArrival, // R = 150
     EmptyQuatFullArrival, // R = 15
@@ -30,7 +31,7 @@ namespace DynStack.Simulation.HS
     EmptyArrivalStackReady, // R = -25
     HandoverReadyBlock, // R = 500
     HandoverNotReadyBlock, // R = -50
-    HandoverNotReady, // R = -50
+    //HandoverNotReady, // R = -50
     FullHandover, // R = -50 . Handover is full
     NoPurposeMove, // R = -50 
     NoPurposeMoveOfReadyBlock, // R = -200
@@ -39,7 +40,7 @@ namespace DynStack.Simulation.HS
     MoveToTopReady, // R = -200 
     MoveToStackReady, // R = -30 . Stack holds any ready block
     Invalid, // something to do? 
-    Valid, // default 
+    //Valid, // default 
   }
 
   public class HotstorageSimulation
@@ -377,8 +378,9 @@ namespace DynStack.Simulation.HS
         foreach (var move in schedule.Moves.ToList())
         {
           var condition = CheckMoveCondition(move);
+          CheckMoveReward(move);
 
-          if (IsInvalidMoveCondition(condition))
+          if (condition != MoveCondition.Valid)
           {
             //sim.Log($"Invalid Move {move} {condition}");
             World.Crane.Schedule.Moves.Remove(move);
@@ -548,9 +550,41 @@ namespace DynStack.Simulation.HS
 
     private MoveCondition CheckMoveCondition(CraneMove move)
     {
+      if (move.EmptyMove) return MoveCondition.Valid; // just a crane relocation
+      if (move.SourceId == 0)
+      { // Production -> X
+        var block = World.Production.BottomToTop.LastOrDefault();
+        if (block == null || block.Id != move.BlockId) { return MoveCondition.BlockNotFound; }
+      }
+      else if (move.SourceId <= World.Buffers.Count)
+      { // Buffer -> X
+        var block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+        if (block == null || block.Id != move.BlockId) return MoveCondition.BlockNotFound;
+      }
+      else return MoveCondition.InvalidSource; // Handover -> X
+      if (move.TargetId == 0) return MoveCondition.InvalidTarget; // X -> Production
+      else if (move.TargetId <= World.Buffers.Count)
+      { // X -> Buffer
+        if (World.Buffers[move.TargetId - 1].BottomToTop.Count >= World.Buffers[move.TargetId - 1].MaxHeight)
+          return MoveCondition.HeightLimitViolated;
+      }
+      else
+      { // X -> Handover
+        if (!World.Handover.Ready || World.Handover.Block != null) return MoveCondition.HandoverNotReady;
+        Block block;
+        if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
+        else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
+        if (!block.Ready) return MoveCondition.BlockNotReady;
+      }
+      return MoveCondition.Valid;
+    }
+
+    private MoveCondition CheckMoveReward(CraneMove move)
+    {
+      var returnCondition = MoveCondition.Valid;
+
       this.WriteConditionToFile("Start evaluate");
 
-      var returnCondition = MoveCondition.Valid;
       bool clearProd = false;
       // Reset reward befor each evaluation
       World.KPIs.CraneMoveReward = 0;
