@@ -672,7 +672,8 @@ namespace DynStack.Simulation.HS
           var readyBlock = World.Buffers[targetIndex].BottomToTop.Where(item => item.Ready).FirstOrDefault();
 
           // is on top ready block?
-          if (World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
+          if (World.Buffers[targetIndex].BottomToTop.Count > 0 && 
+              World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
           {
             World.KPIs.CraneMoveReward += -0.25;
             returnCondition = MoveCondition.MoveToTopReady;
@@ -706,7 +707,7 @@ namespace DynStack.Simulation.HS
         if (move.SourceId == World.Production.Id) block = World.Production.BottomToTop.LastOrDefault();
         else block = World.Buffers[move.SourceId - 1].BottomToTop.LastOrDefault();
 
-        if (!block.Ready)
+        if (block == null || !block.Ready)
         {
           World.KPIs.CraneMoveReward += -0.5;
           returnCondition = MoveCondition.HandoverNotReadyBlock;
