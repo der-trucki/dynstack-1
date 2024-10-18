@@ -20,27 +20,27 @@ namespace DynStack.Simulation.HS
     BlockNotFound,
     HandoverNotReady,
     BlockNotReady,
-  //}
-  //public enum MoveCondition
-  //{
-    EmptyFullArrival, // R = 600
-    EmptyThreeQuatFullArrival, // R = 150
-    EmptyQuatFullArrival, // R = 15
-    EmptyEmptyArrival, // R = -50 . Arrival is full
-    EmptyArrivalTopReady, // R = -100
-    EmptyArrivalStackReady, // R = -25
-    HandoverReadyBlock, // R = 500
-    HandoverNotReadyBlock, // R = -50
-    //HandoverNotReady, // R = -50
-    FullHandover, // R = -50 . Handover is full
-    NoPurposeMove, // R = -50 
-    NoPurposeMoveOfReadyBlock, // R = -200
-    PurposeMove, // R = -10 . For each block to ready block -> add -10
-    SourceEmpty, // R = 20 . Stack gets empty
-    MoveToTopReady, // R = -200 
-    MoveToStackReady, // R = -30 . Stack holds any ready block
-    Invalid, // something to do? 
-    //Valid, // default 
+  ////}
+  ////public enum MoveCondition
+  ////{
+  //  EmptyFullArrival, // R = 600
+  //  EmptyThreeQuatFullArrival, // R = 150
+  //  EmptyQuatFullArrival, // R = 15
+  //  EmptyEmptyArrival, // R = -50 . Arrival is full
+  //  EmptyArrivalTopReady, // R = -100
+  //  EmptyArrivalStackReady, // R = -25
+  //  HandoverReadyBlock, // R = 500
+  //  HandoverNotReadyBlock, // R = -50
+  //  //HandoverNotReady, // R = -50
+  //  FullHandover, // R = -50 . Handover is full
+  //  NoPurposeMove, // R = -50 
+  //  NoPurposeMoveOfReadyBlock, // R = -200
+  //  PurposeMove, // R = -10 . For each block to ready block -> add -10
+  //  SourceEmpty, // R = 20 . Stack gets empty
+  //  MoveToTopReady, // R = -200 
+  //  MoveToStackReady, // R = -30 . Stack holds any ready block
+  //  Invalid, // something to do? 
+  //  //Valid, // default 
   }
 
   public class HotstorageSimulation
@@ -378,7 +378,9 @@ namespace DynStack.Simulation.HS
         foreach (var move in schedule.Moves.ToList())
         {
           var condition = CheckMoveCondition(move);
-          CheckMoveReward(move);
+          CheckMoveReward(move, condition);
+          Console.WriteLine("CraneReward: " + World.KPIs.CraneMoveReward);
+          Console.WriteLine("CraneMoveCondition: " + condition.ToString());
 
           if (condition != MoveCondition.Valid)
           {
@@ -479,19 +481,19 @@ namespace DynStack.Simulation.HS
       }
     }
 
-    private bool IsInvalidMoveCondition(MoveCondition condition)
-    {
-      switch(condition)
-      {
-        case MoveCondition.Invalid:
-        case MoveCondition.FullHandover:
-        case MoveCondition.HandoverNotReady:
-        case MoveCondition.EmptyEmptyArrival:
-          return false;
-        default: 
-          return true;
-      }
-    }
+    //private bool IsInvalidMoveCondition(MoveCondition condition)
+    //{
+    //  switch(condition)
+    //  {
+    //    case MoveCondition.Invalid:
+    //    case MoveCondition.FullHandover:
+    //    case MoveCondition.HandoverNotReady:
+    //    case MoveCondition.EmptyEmptyArrival:
+    //      return false;
+    //    default: 
+    //      return true;
+    //  }
+    //}
 
     private IEnumerable<Event> MoveCraneHorizontal(int targetLocationId)
     {
@@ -579,14 +581,19 @@ namespace DynStack.Simulation.HS
       return MoveCondition.Valid;
     }
 
-    private MoveCondition CheckMoveReward(CraneMove move)
+    private void CheckMoveReward(CraneMove move, MoveCondition currCondition)
     {
-      var returnCondition = MoveCondition.Valid;
+      //var returnCondition = MoveCondition.Valid;
 
       this.WriteConditionToFile("Start evaluate");
 
       bool clearProd = false;
       // Reset reward befor each evaluation
+      if (currCondition != MoveCondition.Valid)
+      {
+        World.KPIs.CraneMoveReward = -1;
+        return;
+      }
       World.KPIs.CraneMoveReward = 0;
 
       if (move.SourceId == 0) // Production -> X
@@ -596,14 +603,14 @@ namespace DynStack.Simulation.HS
         {
           World.KPIs.CraneMoveReward += -0.25;
           clearProd = false;
-          returnCondition = MoveCondition.EmptyEmptyArrival;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.EmptyEmptyArrival;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
           World.KPIs.CraneMoveReward += 1;
-          returnCondition = MoveCondition.PurposeMove;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.PurposeMove;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
       }
       else if (move.SourceId <= World.Buffers.Count &&
@@ -618,42 +625,42 @@ namespace DynStack.Simulation.HS
           {
             if (World.Buffers[sourceIndex].BottomToTop[i].Id == move.BlockId)
             {
-              returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
-              this.WriteConditionToFile(returnCondition.ToString());
+              //returnCondition = MoveCondition.NoPurposeMoveOfReadyBlock;
+              //this.WriteConditionToFile(returnCondition.ToString());
             }
             else
             {
-              returnCondition = MoveCondition.PurposeMove;
-              this.WriteConditionToFile(returnCondition.ToString());
+              //returnCondition = MoveCondition.PurposeMove;
+              //this.WriteConditionToFile(returnCondition.ToString());
             }
             break;
           }
-          returnCondition = MoveCondition.NoPurposeMove;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.NoPurposeMove;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
 
         // if source gets empty with this move -> small reward
         if (World.Buffers[sourceIndex].BottomToTop.Count == 1)
         {
-          World.KPIs.CraneMoveReward += 0.25;
-          returnCondition = MoveCondition.SourceEmpty;
-          this.WriteConditionToFile(returnCondition.ToString());
+          World.KPIs.CraneMoveReward += 0.15;
+          //returnCondition = MoveCondition.SourceEmpty;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
       }
       else
       {
         // unvalid moves should "hurt"
         World.KPIs.CraneMoveReward += -1;
-        returnCondition = MoveCondition.Invalid;
-        this.WriteConditionToFile(returnCondition.ToString());
+        //returnCondition = MoveCondition.Invalid;
+        //this.WriteConditionToFile(returnCondition.ToString());
       }
 
       if (move.TargetId == 0) // X -> Production
       {
         // unvalid moves should "hurt"
         World.KPIs.CraneMoveReward += -1;
-        returnCondition = MoveCondition.Invalid;
-        this.WriteConditionToFile(returnCondition.ToString());
+        //returnCondition = MoveCondition.Invalid;
+        //this.WriteConditionToFile(returnCondition.ToString());
       }
       else if (move.TargetId <= World.Buffers.Count) // X -> Buffer
       {
@@ -664,8 +671,8 @@ namespace DynStack.Simulation.HS
         {
           // unvalid moves should "hurt"
           World.KPIs.CraneMoveReward += -1;
-          returnCondition = MoveCondition.Invalid;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.Invalid;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
@@ -676,15 +683,15 @@ namespace DynStack.Simulation.HS
               World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
           {
             World.KPIs.CraneMoveReward += -0.25;
-            returnCondition = MoveCondition.MoveToTopReady;
-            this.WriteConditionToFile(returnCondition.ToString());
+            //returnCondition = MoveCondition.MoveToTopReady;
+            //this.WriteConditionToFile(returnCondition.ToString());
           }
           else if (readyBlock != null) // target stack contains min one ready block
           {
             // if source is prod, reward is "only" -25
             World.KPIs.CraneMoveReward += -0.25;
-            returnCondition = MoveCondition.MoveToStackReady;
-            this.WriteConditionToFile(returnCondition.ToString());
+            //returnCondition = MoveCondition.MoveToStackReady;
+            //this.WriteConditionToFile(returnCondition.ToString());
           }
         }
       }
@@ -693,14 +700,14 @@ namespace DynStack.Simulation.HS
         if (!World.Handover.Ready)
         {
           //World.KPIs.CraneMoveReward += -0.5;
-          returnCondition = MoveCondition.HandoverNotReady;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.HandoverNotReady;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
         else if (World.Handover.Block != null)
         {
           World.KPIs.CraneMoveReward += -0.5;
-          returnCondition = MoveCondition.FullHandover;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.FullHandover;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
 
         Block block;
@@ -710,19 +717,19 @@ namespace DynStack.Simulation.HS
         if (block == null || !block.Ready)
         {
           World.KPIs.CraneMoveReward += -0.5;
-          returnCondition = MoveCondition.HandoverNotReadyBlock;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.HandoverNotReadyBlock;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
         else
         {
           World.KPIs.CraneMoveReward += 1;
-          returnCondition = MoveCondition.HandoverReadyBlock;
-          this.WriteConditionToFile(returnCondition.ToString());
+          //returnCondition = MoveCondition.HandoverReadyBlock;
+          //this.WriteConditionToFile(returnCondition.ToString());
         }
       }
-
+      //World.KPIs.CraneMoveReward = World.KPIs.CraneMoveReward / 10;
       this.WriteConditionToFile("End evaluate");
-      return returnCondition;
+      //return returnCondition;
     }
 
     //private MoveCondition CheckMoveCondition(CraneMove move)
