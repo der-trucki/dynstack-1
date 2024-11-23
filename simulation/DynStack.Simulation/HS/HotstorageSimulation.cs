@@ -591,7 +591,7 @@ namespace DynStack.Simulation.HS
         clearProd = true;
         if (World.Production.BottomToTop.Count == 0) // empty prod stack
         {
-          World.KPIs.CraneMoveReward += -0.25;
+          World.KPIs.CraneMoveReward += -1;
           clearProd = false;
         }
         else if (World.Production.BottomToTop.Count == 1)
@@ -600,7 +600,7 @@ namespace DynStack.Simulation.HS
         }
         else
         {
-          World.KPIs.CraneMoveReward += 0.25;
+          World.KPIs.CraneMoveReward += 1;
         }
       }
       else if (move.SourceId <= World.Buffers.Count &&
@@ -613,14 +613,14 @@ namespace DynStack.Simulation.HS
         {
           if (World.Buffers[sourceIndex].BottomToTop[i].Ready)
           {
-            World.KPIs.CraneMoveReward += 0.05;
+            World.KPIs.CraneMoveReward += 1;
           }
         }
 
         // if source gets empty with this move -> small reward
         if (World.Buffers[sourceIndex].BottomToTop.Count == 1)
         {
-          World.KPIs.CraneMoveReward += 0.15;
+          World.KPIs.CraneMoveReward += 1;
         }
       }
       else
@@ -649,15 +649,15 @@ namespace DynStack.Simulation.HS
           var readyBlock = World.Buffers[targetIndex].BottomToTop.Where(item => item.Ready).FirstOrDefault();
 
           // is on top ready block?
-          if (World.Buffers[targetIndex].BottomToTop.Count > 0 && 
+          if (World.Buffers[targetIndex].BottomToTop.Count > 0 &&
               World.Buffers[targetIndex].BottomToTop[World.Buffers[targetIndex].BottomToTop.Count - 1].Ready)
           {
-            World.KPIs.CraneMoveReward += -0.5;
+            World.KPIs.CraneMoveReward += -1;
           }
           else if (readyBlock != null) // target stack contains min one ready block
           {
             // if source is prod, reward is "only" -25
-            World.KPIs.CraneMoveReward += -0.25;
+            World.KPIs.CraneMoveReward += -1;
           }
         }
       }
@@ -665,7 +665,7 @@ namespace DynStack.Simulation.HS
       { // X -> Handover
         if (!World.Handover.Ready || World.Handover.Block != null)
         {
-          World.KPIs.CraneMoveReward += -0.5;
+          World.KPIs.CraneMoveReward += -1;
         }
 
         Block block;
@@ -674,7 +674,7 @@ namespace DynStack.Simulation.HS
 
         if (block == null || !block.Ready)
         {
-          World.KPIs.CraneMoveReward += -0.5;
+          World.KPIs.CraneMoveReward += -1;
         }
         else
         {

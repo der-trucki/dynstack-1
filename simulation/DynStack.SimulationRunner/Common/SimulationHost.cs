@@ -18,7 +18,7 @@ namespace DynStack.SimulationRunner.Common {
 
     protected TextWriter Logger { get; private set; }
 
-    public async Task<bool> RunSimulationAsync(Options options, TextWriter logger, CancellationToken token = default) {
+    public async Task<bool> RunSimulationAsync(Options options, TextWriter logger, CancellationToken token = default, string setting = "default") {
       Logger = logger;
       try {
         Id = options.Id;
@@ -61,14 +61,15 @@ namespace DynStack.SimulationRunner.Common {
             poller.RunAsync();
 
           if (!string.IsNullOrEmpty(options.SettingsPath)) {
-            if (options.SettingsPath.Equals("Default", StringComparison.OrdinalIgnoreCase)) {
+            //if (options.SettingsPath.Equals("Default", StringComparison.OrdinalIgnoreCase)) {
               logger.WriteLine("Using default settings");
-              _settingsReceived.SetResult(GetDefaultSettings());
-            } else {
-              logger.WriteLine($"Reading settings from {options.SettingsPath}");
-              logger.WriteLine($"Settings: {File.ReadAllBytes(options.SettingsPath)}");
-              _settingsReceived.SetResult(File.ReadAllBytes(options.SettingsPath));
-            }
+              //_settingsReceived.SetResult(GetDefaultSettings());
+              _settingsReceived.SetResult(GetDefaultSettings(setting));
+            //} else {
+            //  logger.WriteLine($"Reading settings from {options.SettingsPath}");
+            //  logger.WriteLine($"Settings: {File.ReadAllBytes(options.SettingsPath)}");
+            //  _settingsReceived.SetResult(File.ReadAllBytes(options.SettingsPath));
+            //}
           }
           var result = false;
           try {
@@ -128,6 +129,7 @@ namespace DynStack.SimulationRunner.Common {
     protected abstract Task StopAsync();
 
     protected abstract byte[] GetDefaultSettings();
+    protected abstract byte[] GetDefaultSettings(string setting);
 
     private void DisposeSocket() {
       try {

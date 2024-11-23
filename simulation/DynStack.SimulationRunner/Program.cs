@@ -115,7 +115,7 @@ update, but only after the measured time has passed in the simulation.
         switch (o.SimType)
         {
           case SimulationType.HS:
-            if (!await new HS.SimulationHost().RunSimulationAsync(o, Logger, cts.Token))
+            if (!await new HS.SimulationHost().RunSimulationAsync(o, Logger, cts.Token, o.SettingsPath))
               return 1;
             break;
           case SimulationType.RM:

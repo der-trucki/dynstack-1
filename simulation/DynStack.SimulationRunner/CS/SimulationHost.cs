@@ -77,6 +77,11 @@ namespace DynStack.SimulationRunner.CS {
       throw new NotImplementedException("synchronous mode is not implemented for CS environment.");
     }
 
+    protected override byte[] GetDefaultSettings(string setting)
+    {
+      throw new NotImplementedException();
+    }
+
     public static Settings DefaultSettings {
       get => new Settings() {
         Seed = 40,

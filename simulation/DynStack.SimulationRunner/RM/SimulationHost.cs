@@ -73,6 +73,11 @@ namespace DynStack.SimulationRunner.RM {
       throw new NotImplementedException("synchronous mode is not implemented for RM environment.");
     }
 
+    protected override byte[] GetDefaultSettings(string setting)
+    {
+      throw new NotImplementedException();
+    }
+
     public static Settings DefaultSettings {
       get => new Settings() {
         ArrivalStackPositions = new List<double> { 1, 2, 3 },
