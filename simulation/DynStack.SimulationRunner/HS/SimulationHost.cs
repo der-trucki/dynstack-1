@@ -90,6 +90,48 @@ namespace DynStack.SimulationRunner.HS {
           case "settings_23BM":
             settings = settings_23BM;
             break;
+          case "EmptySettings_213A":
+            settings = EmptySettings_213A;
+            break;
+          case "FullSettings_213A":
+            settings = FullSettings_213A;
+            break;
+          case "settings_213B":
+            settings = settings_213B;
+            break;
+          case "settings_213D":
+            settings = settings_213D;
+            break;
+          case "EmptySettings_216A":
+            settings = EmptySettings_216A;
+            break;
+          case "FullSettings_216A":
+            settings = FullSettings_216A;
+            break;
+          case "settings_216B":
+            settings = settings_216B;
+            break;
+          case "settings_216D":
+            settings = settings_216D;
+            break;
+          case "EmptySettings_219A":
+            settings = EmptySettings_219A;
+            break;
+          case "FullSettings_219A":
+            settings = FullSettings_219A;
+            break;
+          case "settings_219A":
+            settings = settings_219A;
+            break;
+          case "settings_219B":
+            settings = settings_219B;
+            break;
+          case "settings_219C":
+            settings = settings_219C;
+            break;
+          case "settings_219D":
+            settings = settings_219D;
+            break;
           default:
             throw new NotImplementedException();
             break;
@@ -155,6 +197,74 @@ namespace DynStack.SimulationRunner.HS {
       };
     }
 
+    public static Settings EmptySettings_213A
+    {
+      get => new Settings()
+      {
+        // 21-3A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 8,
+        BufferCount = 3,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(1.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.3),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.25),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.05),
+        DueTimeMean = TimeSpan.FromSeconds(232.8),
+        DueTimeStd = TimeSpan.FromSeconds(42),
+        ArrivalTimeMean = TimeSpan.FromSeconds(12.14),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.42),
+        InitialNumberOfBlocks = 0,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+    public static Settings FullSettings_213A
+    {
+      get => new Settings()
+      {
+        // 21-3A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 8,
+        BufferCount = 3,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(1.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.3),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.25),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.05),
+        DueTimeMean = TimeSpan.FromSeconds(232.8),
+        DueTimeStd = TimeSpan.FromSeconds(42),
+        ArrivalTimeMean = TimeSpan.FromSeconds(12.14),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.42),
+        InitialNumberOfBlocks = 24,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
     public static Settings settings_213A
     {
       get => new Settings()
@@ -188,6 +298,46 @@ namespace DynStack.SimulationRunner.HS {
         SimulationDuration = TimeSpan.FromHours(1)
       };
     }
+    public static Settings settings_213B
+    {
+      get => new Settings()
+      {
+        // settings_213B
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 8,
+        BufferCount = 3,
+
+        CraneMoveTimeMean = TimeSpan.FromSeconds(1.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(0.5),
+
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.25),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(1),
+
+        DueTimeMean = TimeSpan.FromSeconds(170),
+        DueTimeStd = TimeSpan.FromSeconds(300),
+
+        ArrivalTimeMean = TimeSpan.FromSeconds(10.62),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.12),
+
+        InitialNumberOfBlocks = 12,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+
+        DueTimeMin = TimeSpan.FromSeconds(60),
+
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
 
 
     public static Settings settings_213C
@@ -198,6 +348,7 @@ namespace DynStack.SimulationRunner.HS {
         ProductionMaxHeight = 4,
         BufferMaxHeight = 8,
         BufferCount = 3,
+
         CraneMoveTimeMean = TimeSpan.FromSeconds(1.5),
         CraneMoveTimeStd = TimeSpan.FromSeconds(.3),
         HoistMoveTimeMean = TimeSpan.FromSeconds(.25),
@@ -207,6 +358,45 @@ namespace DynStack.SimulationRunner.HS {
         ArrivalTimeMean = TimeSpan.FromSeconds(9.44),
         ArrivalTimeStd = TimeSpan.FromSeconds(1.88),
         InitialNumberOfBlocks = 9,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_213D
+    {
+      get => new Settings()
+      {
+        // settings_213D
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 8,
+        BufferCount = 3,
+
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.3),
+
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.05),
+
+        DueTimeMean = TimeSpan.FromSeconds(468),
+        DueTimeStd = TimeSpan.FromSeconds(24),
+        ArrivalTimeMean = TimeSpan.FromSeconds(16.25),
+        ArrivalTimeStd = TimeSpan.FromSeconds(3.25),
+        InitialNumberOfBlocks = 14,
         CheckInterval = TimeSpan.FromSeconds(.5),
         Seed = 42,
         DueTimeMin = TimeSpan.FromSeconds(60),
@@ -262,6 +452,114 @@ namespace DynStack.SimulationRunner.HS {
     }
 
 
+    public static Settings EmptySettings_216A
+    {
+      get => new Settings()
+      {
+        // 21-6A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 6,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.4),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.1),
+        DueTimeMean = TimeSpan.FromSeconds(480),
+        DueTimeStd = TimeSpan.FromSeconds(96),
+        ArrivalTimeMean = TimeSpan.FromSeconds(14.28),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.85),
+        InitialNumberOfBlocks = 0,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings FullSettings_216A
+    {
+      get => new Settings()
+      {
+        // 21-6A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 6,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.4),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.1),
+        DueTimeMean = TimeSpan.FromSeconds(480),
+        DueTimeStd = TimeSpan.FromSeconds(96),
+        ArrivalTimeMean = TimeSpan.FromSeconds(14.28),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.85),
+        InitialNumberOfBlocks = 36,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_216B
+    {
+      get => new Settings()
+      {
+        // settings_216B
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 6,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.4),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.1),
+        DueTimeMean = TimeSpan.FromSeconds(480),
+        DueTimeStd = TimeSpan.FromSeconds(96),
+        ArrivalTimeMean = TimeSpan.FromSeconds(12.5),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.5),
+        InitialNumberOfBlocks = 18,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
     public static Settings settings_216C
     {
       get => new Settings()
@@ -280,6 +578,258 @@ namespace DynStack.SimulationRunner.HS {
         ArrivalTimeMean = TimeSpan.FromSeconds(11.11),
         ArrivalTimeStd = TimeSpan.FromSeconds(2.22),
         InitialNumberOfBlocks = 18,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_216D
+    {
+      get => new Settings()
+      {
+
+        // 21-6D
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 6,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.4),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.1),
+        DueTimeMean = TimeSpan.FromSeconds(267),
+        DueTimeStd = TimeSpan.FromSeconds(52.8),
+        ArrivalTimeMean = TimeSpan.FromSeconds(18.13),
+        ArrivalTimeStd = TimeSpan.FromSeconds(3.63),
+        InitialNumberOfBlocks = 22,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings EmptySettings_219A
+    {
+      get => new Settings()
+      {
+
+        // settings_219A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.75),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.15),
+        DueTimeMean = TimeSpan.FromSeconds(946),
+        DueTimeStd = TimeSpan.FromSeconds(189.2),
+        ArrivalTimeMean = TimeSpan.FromSeconds(16.43),
+        ArrivalTimeStd = TimeSpan.FromSeconds(3.29),
+        InitialNumberOfBlocks = 0,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings FullSettings_219A
+    {
+      get => new Settings()
+      {
+
+        // settings_219A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.75),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.15),
+        DueTimeMean = TimeSpan.FromSeconds(946),
+        DueTimeStd = TimeSpan.FromSeconds(189.2),
+        ArrivalTimeMean = TimeSpan.FromSeconds(16.43),
+        ArrivalTimeStd = TimeSpan.FromSeconds(3.29),
+        InitialNumberOfBlocks = 54,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_219A
+    {
+      get => new Settings()
+      {
+
+        // settings_219A
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.75),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.15),
+        DueTimeMean = TimeSpan.FromSeconds(946),
+        DueTimeStd = TimeSpan.FromSeconds(189.2),
+        ArrivalTimeMean = TimeSpan.FromSeconds(16.43),
+        ArrivalTimeStd = TimeSpan.FromSeconds(3.29),
+        InitialNumberOfBlocks = 32,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_219B
+    {
+      get => new Settings()
+      {
+
+        // settings_219B
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.75),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.15),
+        DueTimeMean = TimeSpan.FromSeconds(725),
+        DueTimeStd = TimeSpan.FromSeconds(145),
+        ArrivalTimeMean = TimeSpan.FromSeconds(14.37),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.87),
+        InitialNumberOfBlocks = 27,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_219C
+    {
+      get => new Settings()
+      {
+
+        // settings_219C
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(2.5),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.5),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(.75),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.15),
+        DueTimeMean = TimeSpan.FromSeconds(552),
+        DueTimeStd = TimeSpan.FromSeconds(110.4),
+        ArrivalTimeMean = TimeSpan.FromSeconds(12.78),
+        ArrivalTimeStd = TimeSpan.FromSeconds(2.56),
+        InitialNumberOfBlocks = 22,
+        CheckInterval = TimeSpan.FromSeconds(.5),
+        Seed = 42,
+        DueTimeMin = TimeSpan.FromSeconds(60),
+        ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
+
+        MinClearTime = TimeSpan.FromSeconds(0),
+        MaxClearTime = TimeSpan.FromSeconds(1),
+        HandoverTimeMean = TimeSpan.FromSeconds(4),
+        HandoverTimeStd = TimeSpan.FromSeconds(1),
+
+        //SimulationDuration = TimeSpan.FromSeconds(10),
+        //SimulationDuration = TimeSpan.FromMinutes(1),
+        SimulationDuration = TimeSpan.FromHours(1)
+      };
+    }
+
+
+    public static Settings settings_219D
+    {
+      get => new Settings()
+      {
+
+        // settings_219D
+        ProductionMaxHeight = 4,
+        BufferMaxHeight = 6,
+        BufferCount = 9,
+        CraneMoveTimeMean = TimeSpan.FromSeconds(3),
+        CraneMoveTimeStd = TimeSpan.FromSeconds(.6),
+        HoistMoveTimeMean = TimeSpan.FromSeconds(1),
+        HoistMoveTimeStd = TimeSpan.FromSeconds(.2),
+        DueTimeMean = TimeSpan.FromSeconds(1728),
+        DueTimeStd = TimeSpan.FromSeconds(345.6),
+        ArrivalTimeMean = TimeSpan.FromSeconds(20),
+        ArrivalTimeStd = TimeSpan.FromSeconds(4),
+        InitialNumberOfBlocks = 32,
         CheckInterval = TimeSpan.FromSeconds(.5),
         Seed = 42,
         DueTimeMin = TimeSpan.FromSeconds(60),
@@ -389,6 +939,7 @@ namespace DynStack.SimulationRunner.HS {
         Seed = 42,
         DueTimeMin = TimeSpan.FromSeconds(60),
         ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
 
         MinClearTime = TimeSpan.FromSeconds(0),
         MaxClearTime = TimeSpan.FromSeconds(1),
@@ -423,6 +974,7 @@ namespace DynStack.SimulationRunner.HS {
         Seed = 42,
         DueTimeMin = TimeSpan.FromSeconds(60),
         ReadyFactorMin = 0.1,
+        ReadyFactorMax = 0.2,
 
         MinClearTime = TimeSpan.FromSeconds(0),
         MaxClearTime = TimeSpan.FromSeconds(1),
@@ -434,5 +986,7 @@ namespace DynStack.SimulationRunner.HS {
         SimulationDuration = TimeSpan.FromHours(1)
       };
     }
+
+
   }
 }
